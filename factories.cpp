@@ -48,26 +48,29 @@ std::vector<WaterObject *> RandomWaterObjectFactory::makeWaterObjectVector()
 
     std::vector<WaterObject*> lakeElements;
 
-    //Generate all fish species
+    //Generate all fish species*****************************************************************
     for(auto i : _availableFishes)
     {
         lakeElements.push_back(makeFishObject(i));
     }
+    //******************************************************************************************
 
-    //Generate random fishies
+    //Generate random fishies--------------------------------------------------------------------
     std::uniform_int_distribution<int> randNumber(0,_availableFishes.size());
     for(unsigned int i = 0; i < _fishNumber - _availableFishes.size(); i++)
     {
         lakeElements.push_back( makeFishObject(_availableFishes.at(randNumber(_engine))));
     }
+    //-------------------------------------------------------------------------------------------
 
-    //Generate water plants
+    //Generate water plants++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     std::uniform_int_distribution<int> randPositionX(0,_xSize);
     std::uniform_int_distribution<int> randPositionY(0,_ySize);
     for(unsigned int i = 0; i < _plantsNumber; i++)
     {
         lakeElements.push_back(new Seaweed(randPositionX(_engine),randPositionY(_engine)));
     }
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     return lakeElements;
 }

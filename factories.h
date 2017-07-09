@@ -3,18 +3,19 @@
 
 #include <random>
 #include <vector>
+#include <string>
 #include <map>
 #include "waterobject.h"
 #include "fishes.h"
 #include "waterplants.h"
 
-//Abstract Factory***********************************
+//Abstract Factory****************************************************
 class Factori
 {
 public:
     virtual std::vector<WaterObject*> makeWaterObjectVector() = 0;
 };
-//***************************************************
+//********************************************************************
 
 class RandomWaterObjectFactory : public Factori
 {

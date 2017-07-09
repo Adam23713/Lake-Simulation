@@ -29,14 +29,16 @@ SOURCES += \
     waterobject.cpp \
     fishes.cpp \
     waterplants.cpp \
-    factories.cpp
+    factories.cpp \
+    lakesimulation.cpp
 
 HEADERS += \
         mainwindow.h \
     waterobject.h \
     fishes.h \
     waterplants.h \
-    factories.h
+    factories.h \
+    lakesimulation.h
 
 FORMS += \
         mainwindow.ui

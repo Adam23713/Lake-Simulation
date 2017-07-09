@@ -2,5 +2,11 @@
     <qresource prefix="/images">
         <file>images/fish_icon.png</file>
         <file>images/open-file.png</file>
+        <file>images/again.png</file>
+        <file>images/application-exit.png</file>
+        <file>images/forward.png</file>
+        <file>images/play.png</file>
+        <file>images/rewind.png</file>
+        <file>images/water.png</file>
     </qresource>
 </RCC>
