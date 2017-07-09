@@ -3,6 +3,7 @@
 
 #include <random>
 #include <vector>
+#include <map>
 #include "waterobject.h"
 #include "fishes.h"
 #include "waterplants.h"
@@ -18,14 +19,14 @@ public:
 class RandomWaterObjectFactory : public Factori
 {
 private:
-    const std::vector<std::wstring> AvailableFishes = {L"Kárász",L"Csuka",L"Fejes domolykó"};
+    std::map<Point2D,bool> _locationsMap;
+    std::vector<std::wstring> _availableFishes = {L"Kárász",L"Csuka",L"Fejes domolykó"};
     const std::vector<std::wstring> AvailablePlants = {L"Hínár"};
 
     unsigned int _xSize;
     unsigned int _ySize;
     unsigned int _fishNumber;
     unsigned int _plantsNumber;
-    std::vector<std::wstring>& _speciesList;
     std::mt19937 _engine;
 
     //Private functions

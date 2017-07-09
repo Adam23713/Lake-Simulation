@@ -25,7 +25,10 @@ public:
 //Hínár
 class Seaweed final : public WaterPlant
 {
-
+public:
+    Seaweed() = delete;
+    Seaweed(Point2D position);
+    Seaweed(int x, int y);
 };
 
 #endif // WATERPLANTS_H

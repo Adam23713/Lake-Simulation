@@ -18,3 +18,16 @@ void WaterPlant::SetToLiveOrDeath(LIVE value)
 {
     _live = value;
 }
+
+
+//Seaweed definition******************************************************************
+Seaweed::Seaweed(Point2D position) : WaterPlant(position)
+{
+
+}
+
+Seaweed::Seaweed(int x, int y) : WaterPlant(x,y)
+{
+
+}
+//************************************************************************************

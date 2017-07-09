@@ -15,7 +15,12 @@ public:
     //Constructors
     Point2D() = delete;
     Point2D(int x, int y);
-    Point2D(const Point2D&) = default;
+    Point2D(const Point2D &P1);
+
+    //Operators
+    Point2D& operator=(const Point2D& P1);
+    bool operator==(const Point2D& P1) const;
+    bool operator<( const Point2D& P1) const;
 
     //Functions
     bool SetXPosition(int x);
