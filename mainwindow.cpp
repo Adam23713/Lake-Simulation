@@ -6,8 +6,8 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     _fileIsLoaded = false;
-    _fishNumber = 100;
-    _plantsNumber = 30;
+    _fishNumber = 6;
+    _plantsNumber = 5;
     ui->setupUi(this);
 }
 
@@ -16,6 +16,7 @@ MainWindow::~MainWindow()
     for(auto i : _picturelabels) delete i;
     for(auto i : _waterObjects) delete i;
     for(auto i : _waterObjectLabels) delete i;
+    if(_simulation != nullptr) delete _simulation;
     delete ui;
 }
 
@@ -65,7 +66,7 @@ void MainWindow::on_actionOpen_File_triggered()
             _fishiesName.push_back(i.toStdWString());
 
         //Drawn the lake and enabled the start button
-        drawnTheWaterElement();
+        drawnWaterElement();
         ui->playPushButton->setEnabled(true);
         //********************************************
     }
@@ -80,7 +81,7 @@ void MainWindow::on_playPushButton_clicked()
     _simulation->start();
 }
 
-void MainWindow::drawnTheWaterElement()
+void MainWindow::drawnTheCleanWater()
 {
     //Drawn the clean lake------------------------------------------------------------------------------
     QPixmap image(":/images/images/water.png");
@@ -100,56 +101,71 @@ void MainWindow::drawnTheWaterElement()
         }
     }
     //------------------------------------------------------------------------------------------------
+}
 
-    //Drawn the Water object
+void MainWindow::drawnWaterElement()
+{
+    drawnTheCleanWater();
+
+    //Call Random Factory
     RandomWaterObjectFactory *factory = new RandomWaterObjectFactory(_fishiesName,_xSize,_ySize,_fishNumber,_plantsNumber);
     _waterObjects = factory->makeWaterObjectVector();
-    delete factory;
-
     if(_waterObjects.size() == 0)
     {
         QMessageBox::warning(this,"Too many object","The lake size is smaller than the number of fish and the number of plant.\nLake size: " + QString::number(_xSize*_ySize)+ "\nNumber of fish: " + QString::number(_fishNumber) + "\nNumber of plant: " + QString::number(_plantsNumber));
         return;
     }
+
+    //Drawn Water elements
     for(auto i : _waterObjects)
     {
-        Point2D point = i->GetPosition();
         QString path;
         QString toolTip;
+        setSpritesAndToolTipStr(i,path,toolTip);
 
-        WaterObjectType var = i->GetType();
-        switch(var)
-        {
+        //Set labels
+        Point2D point = i->GetPosition();
+        QPixmap image(path);
+        QLabel* label = new QLabel(this);
+
+        label->setToolTip(toolTip);
+        label->setPixmap(image);
+        label->show();
+        ui->lakeGrid->addWidget(label,point.GetXPosition(),point.GetYPosition());
+        _waterObjectLabels.push_back(label);
+    }
+}
+
+void MainWindow::setSpritesAndToolTipStr(WaterObject* i, QString& path, QString& toolTip)
+{
+    WaterObjectType var = i->GetType();
+    Point2D point = i->GetPosition();
+    switch(var)
+    {
         case WaterObjectType::PLANT:
             path=":/images/images/plant.png";
             toolTip = "Type: Plant\nName: Seaweed\nCoordinates: " + QString::number(point.GetXPosition()) + ";" + QString::number(point.GetYPosition());
             break;
 
         case WaterObjectType::FISH:
-            SPECIES value = (static_cast<Fish*>(i))->GetSpecies();
+            Fish* fish = static_cast<Fish*>(i);
+            SPECIES value = fish->GetSpecies();
+            QString strSize = "\nSize: " + QString::number( fish->GetSize() );
             switch(value)
             {
             case SPECIES::Carnivorous:
                 path = ":/images/images/Carnivorous.png";
-                toolTip = "Type: Fish\nEat: Meats\nCoordinates: " + QString::number(point.GetXPosition()) + ";" + QString::number(point.GetYPosition());
+                toolTip = "Type: Fish\nEat: Meats\nCoordinates: " + QString::number(point.GetXPosition()) + ";" + QString::number(point.GetYPosition()) + strSize;
                 break;
             case SPECIES::Herbivorous:
                 path = ":/images/images/Herbivorous.png";
-                toolTip = "Type: Fish\nEat: Plants\nCoordinates: " + QString::number(point.GetXPosition()) + ";" + QString::number(point.GetYPosition());
+                toolTip = "Type: Fish\nEat: Plants\nCoordinates: " + QString::number(point.GetXPosition()) + ";" + QString::number(point.GetYPosition()) + strSize;
                 break;
             case  SPECIES::Omnivorous:
+                QString fishName = QString::fromWCharArray( (static_cast<SpecialFish*>(fish))->GetSpeciesName().c_str() );
                 path = ":/images/images/Omnivorous.png";
-                toolTip = "Type: Fish\nEat: Meats and plants\nCoordinates: " + QString::number(point.GetXPosition()) + ";" + QString::number(point.GetYPosition());
+                toolTip = "Type: Fish\nName: " + fishName + "\nEat: Meats and plants\nCoordinates: " + QString::number(point.GetXPosition()) + ";" + QString::number(point.GetYPosition()) + strSize;
                 break;
             }break; //switch end
-        }
-
-        QPixmap image(path);
-        QLabel* label = new QLabel(this);
-        label->setToolTip(toolTip);
-        label->setPixmap(image);
-        label->show();
-        ui->lakeGrid->addWidget(label,point.GetXPosition(),point.GetYPosition());
-        _waterObjectLabels.push_back(label);
     }
 }

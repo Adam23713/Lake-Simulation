@@ -9,6 +9,7 @@ class Fish : public WaterObject
 {
 
 private:
+    Fish* _target;
     unsigned char _size;
     SPECIES _species;
 
@@ -19,6 +20,8 @@ public:
     Fish(int x, int y, unsigned char size, SPECIES spec);
 
     //Functions
+    void SetTarget(Fish* fish);
+    Fish* ShowTarget() const ;
     SPECIES GetSpecies() const;
     unsigned char GetSize() const;
     void Move();
@@ -36,6 +39,7 @@ public:
     SpecialFish(Point2D position, unsigned char size, SPECIES spec,  std::wstring speciesName);
     SpecialFish(int x, int y,  unsigned char size, SPECIES spec, std::wstring speciesName);
 
+    //Public functions
     const std::wstring &GetSpeciesName() const;
 };
 
@@ -58,8 +62,8 @@ public:
     NorthernPike(int x, int y, unsigned char size);
 };
 
-//Omnivorous
-class EuropeanChub final : public Fish // European Chub = Fejes domolykó - Mindenevő
+//Herbivorous
+class EuropeanChub final : public Fish // European Chub = Fejes domolykó - Növényevő
 {
 public:
     EuropeanChub() = delete;

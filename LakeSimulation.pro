@@ -30,7 +30,8 @@ SOURCES += \
     fishes.cpp \
     waterplants.cpp \
     factories.cpp \
-    lakesimulation.cpp
+    lakesimulation.cpp \
+    point2d.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -38,7 +39,8 @@ HEADERS += \
     fishes.h \
     waterplants.h \
     factories.h \
-    lakesimulation.h
+    lakesimulation.h \
+    point2d.h
 
 FORMS += \
         mainwindow.ui

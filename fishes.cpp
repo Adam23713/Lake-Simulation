@@ -12,6 +12,21 @@ Fish::Fish(int x, int y, unsigned char size, SPECIES spec) : WaterObject(Point2D
 
 }
 
+void Fish::SetTarget(Fish *fish)
+{
+    _target = fish;
+}
+
+Fish *Fish::ShowTarget() const
+{
+    return _target;
+}
+
+const std::wstring& SpecialFish::GetSpeciesName() const
+{
+    return _speciesName;
+}
+
 SPECIES Fish::GetSpecies() const
 {
     return _species;
@@ -45,10 +60,6 @@ SpecialFish::SpecialFish(int x, int y, unsigned char size, SPECIES spec, std::ws
 
 }
 
-const std::wstring& SpecialFish::GetSpeciesName() const
-{
-    return _speciesName;
-}
 //-------------------------------------------------------------------------------------------------------------------------
 
 
@@ -76,12 +87,12 @@ NorthernPike::NorthernPike(int x, int y, unsigned char size) : Fish(Point2D(x,y)
 }
 
 
-EuropeanChub::EuropeanChub(Point2D position, unsigned char size) : Fish(position,size,SPECIES::Omnivorous)
+EuropeanChub::EuropeanChub(Point2D position, unsigned char size) : Fish(position,size,SPECIES::Herbivorous)
 {
 
 }
 
-EuropeanChub::EuropeanChub(int x, int y, unsigned char size) : Fish(Point2D(x,y),size,SPECIES::Omnivorous)
+EuropeanChub::EuropeanChub(int x, int y, unsigned char size) : Fish(Point2D(x,y),size,SPECIES::Herbivorous)
 {
 
 }

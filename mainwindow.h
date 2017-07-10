@@ -39,11 +39,13 @@ private:
     std::vector<std::wstring> _fishiesName;
     std::vector<WaterObject*> _waterObjects;
 
-    LakeSimulation* _simulation;
+    LakeSimulation* _simulation = nullptr;
     Ui::MainWindow *ui;
 
     //Private functions
-    void drawnTheWaterElement();
+    void drawnTheCleanWater();
+    void drawnWaterElement();
+    void setSpritesAndToolTipStr(WaterObject* i, QString& path, QString& toolTip);
 
 };
 
