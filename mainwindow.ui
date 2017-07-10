@@ -142,7 +142,14 @@
     <addaction name="actionOpen_File"/>
     <addaction name="actionExit"/>
    </widget>
+   <widget class="QMenu" name="menuSetting">
+    <property name="title">
+     <string>Setting</string>
+    </property>
+    <addaction name="actionChange_parameters"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuSetting"/>
   </widget>
   <action name="actionOpen_File">
    <property name="icon">
@@ -160,6 +167,15 @@
    </property>
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionChange_parameters">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/images/setting.png</normaloff>:/images/images/setting.png</iconset>
+   </property>
+   <property name="text">
+    <string>Change parameters</string>
    </property>
   </action>
  </widget>

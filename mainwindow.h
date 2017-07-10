@@ -32,6 +32,8 @@ private:
     bool _fileIsLoaded;
     int _xSize;
     int _ySize;
+    int _fishNumber;
+    int _plantsNumber;
     QVector<QLabel*> _picturelabels;
     QVector<QLabel*> _waterObjectLabels;
     std::vector<std::wstring> _fishiesName;

@@ -3,21 +3,21 @@
 
 #include <random>
 #include <vector>
-#include <string>
 #include <map>
+#include <string>
 #include "waterobject.h"
 #include "fishes.h"
 #include "waterplants.h"
 
 //Abstract Factory****************************************************
-class Factori
+class Factory
 {
 public:
     virtual std::vector<WaterObject*> makeWaterObjectVector() = 0;
 };
 //********************************************************************
 
-class RandomWaterObjectFactory : public Factori
+class RandomWaterObjectFactory : public Factory
 {
 private:
     std::map<Point2D,bool> _locationsMap;
@@ -31,9 +31,11 @@ private:
     std::mt19937 _engine;
 
     //Private functions
+    Point2D generateRandomPoint();
     Fish *makeFishObject(std::wstring &fishName);
 
 public:
+    ~RandomWaterObjectFactory();
     RandomWaterObjectFactory() = delete;
     RandomWaterObjectFactory(std::vector<std::wstring>& speciesList, unsigned int xSize, unsigned int ySize,
                              unsigned int fishesNumber = 100, unsigned int plantsNumber = 30);

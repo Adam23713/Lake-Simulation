@@ -14,37 +14,52 @@ RandomWaterObjectFactory::RandomWaterObjectFactory(std::vector<std::wstring> &sp
         _availableFishes.push_back(i);
 }
 
-Fish* RandomWaterObjectFactory::makeFishObject(std::wstring& fishName)
+Point2D RandomWaterObjectFactory::generateRandomPoint()
 {
+    Point2D randomPoint(0,0);
     std::uniform_int_distribution<int> x(0,_xSize-1);
     std::uniform_int_distribution<int> y(0,_ySize-1);
-    std::uniform_int_distribution<int> size(1,3);
-
-    //Is the generated point in it?
     while( true )
     {
-        Point2D randomPoint = Point2D(x(_engine),y(_engine));
+        randomPoint = Point2D(x(_engine),y(_engine));
         if( _locationsMap[randomPoint] == false )
         {
             _locationsMap[randomPoint] = true;
             break;
         }
     }
+    return randomPoint;
+}
+
+Fish* RandomWaterObjectFactory::makeFishObject(std::wstring& fishName)
+{
+
+    std::uniform_int_distribution<int> size(1,3);
+    //Is the generated point in it?
+    Point2D randomPoint = generateRandomPoint();
 
     //Which fish it generates
     if(fishName == L"Kárász")
-        return new CrucianCarp(x(_engine),y(_engine),size(_engine));
+        return new CrucianCarp(randomPoint.GetXPosition(),randomPoint.GetYPosition(),size(_engine));
     else if(fishName == L"Csuka")
-       return new NorthernPike(x(_engine),y(_engine),size(_engine));
+       return new NorthernPike(randomPoint.GetXPosition(),randomPoint.GetYPosition(),size(_engine));
     else if(fishName == L"Fejes domolykó")
-        return new EuropeanChub(x(_engine),y(_engine),size(_engine));
+        return new EuropeanChub(randomPoint.GetXPosition(),randomPoint.GetYPosition(),size(_engine));
     else
-        return new SpecialFish(Point2D(x(_engine),y(_engine)),size(_engine),SPECIES::Omnivorous,fishName);
+        return new SpecialFish(randomPoint.GetXPosition(),randomPoint.GetYPosition(),size(_engine),SPECIES::Omnivorous,fishName);
+}
+
+RandomWaterObjectFactory::~RandomWaterObjectFactory()
+{
+
 }
 
 std::vector<WaterObject *> RandomWaterObjectFactory::makeWaterObjectVector()
 {
     std::vector<WaterObject*> lakeElements;
+
+    if((_xSize * _ySize) < (_fishNumber + _plantsNumber))
+        return lakeElements;
 
     //Generate all fish species*****************************************************************
     for(auto i : _availableFishes)
@@ -54,7 +69,7 @@ std::vector<WaterObject *> RandomWaterObjectFactory::makeWaterObjectVector()
     //******************************************************************************************
 
     //Generate random fishies--------------------------------------------------------------------
-    std::uniform_int_distribution<int> randNumber(0,_availableFishes.size());
+    std::uniform_int_distribution<int> randNumber(0,_availableFishes.size()-1);
     for(unsigned int i = 0; i < _fishNumber - _availableFishes.size(); i++)
     {
         lakeElements.push_back( makeFishObject(_availableFishes.at(randNumber(_engine))));
@@ -62,11 +77,10 @@ std::vector<WaterObject *> RandomWaterObjectFactory::makeWaterObjectVector()
     //-------------------------------------------------------------------------------------------
 
     //Generate water plants++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    std::uniform_int_distribution<int> randPositionX(0,_xSize);
-    std::uniform_int_distribution<int> randPositionY(0,_ySize);
     for(unsigned int i = 0; i < _plantsNumber; i++)
     {
-        lakeElements.push_back(new Seaweed(randPositionX(_engine),randPositionY(_engine)));
+        Point2D randomPoint = generateRandomPoint();
+        lakeElements.push_back( new Seaweed(randomPoint.GetXPosition(),randomPoint.GetYPosition()) );
     }
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
