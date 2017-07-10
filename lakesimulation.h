@@ -21,7 +21,9 @@ public:
     void run();
 
 private:
-    Fish* getTarget(int i);
+    WaterObject* getPlantTarget(int i);
+    WaterObject* getFishTarget(int i);
+    WaterObject* getWaterObjecTarget(int i);
 };
 
 #endif // LAKESIMULATION_H

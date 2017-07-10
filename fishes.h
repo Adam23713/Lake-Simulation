@@ -9,7 +9,7 @@ class Fish : public WaterObject
 {
 
 private:
-    Fish* _target;
+    WaterObject* _target = nullptr;
     unsigned char _size;
     SPECIES _species;
 
@@ -20,8 +20,8 @@ public:
     Fish(int x, int y, unsigned char size, SPECIES spec);
 
     //Functions
-    void SetTarget(Fish* fish);
-    Fish* ShowTarget() const ;
+    void SetTarget(WaterObject* fish);
+    WaterObject* ShowTarget() const ;
     SPECIES GetSpecies() const;
     unsigned char GetSize() const;
     void Move();

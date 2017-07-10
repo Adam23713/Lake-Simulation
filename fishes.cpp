@@ -12,12 +12,12 @@ Fish::Fish(int x, int y, unsigned char size, SPECIES spec) : WaterObject(Point2D
 
 }
 
-void Fish::SetTarget(Fish *fish)
+void Fish::SetTarget(WaterObject *fish)
 {
     _target = fish;
 }
 
-Fish *Fish::ShowTarget() const
+WaterObject* Fish::ShowTarget() const
 {
     return _target;
 }
