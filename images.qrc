@@ -8,5 +8,10 @@
         <file>images/play.png</file>
         <file>images/rewind.png</file>
         <file>images/water.png</file>
+        <file>images/dry.png</file>
+        <file>images/plant.png</file>
+        <file>images/Carnivorous.png</file>
+        <file>images/Herbivorous.png</file>
+        <file>images/Omnivorous.png</file>
     </qresource>
 </RCC>

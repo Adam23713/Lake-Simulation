@@ -3,8 +3,6 @@
 
 #include <string>
 
-enum class ERROR_CODE : int {WrongCoordinate = -1};
-
 class Point2D
 {
 private:
@@ -23,26 +21,30 @@ public:
     bool operator<( const Point2D& P1) const;
 
     //Functions
-    bool SetXPosition(int x);
-    bool SetYPosition(int y);
+    void SetXPosition(int x);
+    void SetYPosition(int y);
     int GetXPosition() const;
     int GetYPosition() const;
 };
+
+enum class WaterObjectType { FISH, PLANT };
 
 class WaterObject
 {
 
 private:
+    WaterObjectType _type;
     Point2D _position;
 
 public:
     WaterObject() = delete;
-    WaterObject(Point2D position);
-    WaterObject(int x, int y);
+    WaterObject(Point2D position, WaterObjectType type);
+    WaterObject(int x, int y,  WaterObjectType type);
     WaterObject(const WaterObject&) = default;
 
-    bool SetPosition(int x, int y);
-    bool SetPosition(Point2D point);
+    WaterObjectType GetType() const;
+    void SetPosition(int x, int y);
+    void SetPosition(Point2D point);
     const Point2D& GetPosition() const;
 };
 

@@ -1,7 +1,7 @@
 #ifndef LAKESIMULATION_H
 #define LAKESIMULATION_H
 
-#include "factories.h"
+#include "waterplants.h"
 
 class LakeSimulation
 {

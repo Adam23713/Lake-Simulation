@@ -10,6 +10,7 @@
 #include <fstream>
 #include <set>
 #include "lakesimulation.h"
+#include "factories.h"
 
 namespace Ui {
 class MainWindow;
@@ -32,13 +33,15 @@ private:
     int _xSize;
     int _ySize;
     QVector<QLabel*> _picturelabels;
-    std::set<std::wstring> _fishiesName;
+    QVector<QLabel*> _waterObjectLabels;
+    std::vector<std::wstring> _fishiesName;
+    std::vector<WaterObject*> _waterObjects;
 
     LakeSimulation* _simulation;
     Ui::MainWindow *ui;
 
     //Private functions
-    void drawnTheWatertoTheLake();
+    void drawnTheWaterElement();
 
 };
 

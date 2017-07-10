@@ -6,31 +6,30 @@ RandomWaterObjectFactory::RandomWaterObjectFactory(std::vector<std::wstring> &sp
     //Set the random number genereator's seed
     _engine.seed(time(nullptr));
 
-
     for(unsigned int i = 0; i < _xSize; i++)
-    {
-        for(unsigned int j = 0; j < _ySize; i++)
-        {
+        for(unsigned int j = 0; j < _ySize; j++)
             _locationsMap[Point2D(i,j)] = false;
-        }
-    }
 
     for(auto i : speciesList)
-    {
         _availableFishes.push_back(i);
-    }
 }
 
 Fish* RandomWaterObjectFactory::makeFishObject(std::wstring& fishName)
 {
-    std::uniform_int_distribution<int> x(0,_xSize);
-    std::uniform_int_distribution<int> y(0,_ySize);
+    std::uniform_int_distribution<int> x(0,_xSize-1);
+    std::uniform_int_distribution<int> y(0,_ySize-1);
     std::uniform_int_distribution<int> size(1,3);
 
     //Is the generated point in it?
-    Point2D randomPoint = Point2D(x(_engine),y(_engine));
-    while( _locationsMap[randomPoint] != true )
-        randomPoint = Point2D(x(_engine),y(_engine));
+    while( true )
+    {
+        Point2D randomPoint = Point2D(x(_engine),y(_engine));
+        if( _locationsMap[randomPoint] == false )
+        {
+            _locationsMap[randomPoint] = true;
+            break;
+        }
+    }
 
     //Which fish it generates
     if(fishName == L"Kárász")
@@ -45,7 +44,6 @@ Fish* RandomWaterObjectFactory::makeFishObject(std::wstring& fishName)
 
 std::vector<WaterObject *> RandomWaterObjectFactory::makeWaterObjectVector()
 {
-
     std::vector<WaterObject*> lakeElements;
 
     //Generate all fish species*****************************************************************

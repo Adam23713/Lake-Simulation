@@ -1,11 +1,11 @@
 #include "waterplants.h"
 
-WaterPlant::WaterPlant(Point2D position) : WaterObject(position), _live(LIVE::Healthy)
+WaterPlant::WaterPlant(Point2D position) : WaterObject(position,WaterObjectType::PLANT), _live(LIVE::Healthy)
 {
 }
 
 
-WaterPlant::WaterPlant(int x, int y) : WaterObject(Point2D(x,y)), _live(LIVE::Healthy)
+WaterPlant::WaterPlant(int x, int y) : WaterObject(Point2D(x,y),WaterObjectType::PLANT), _live(LIVE::Healthy)
 {
 }
 

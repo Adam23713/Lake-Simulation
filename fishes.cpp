@@ -2,12 +2,12 @@
 
 
 //Fish Definition----------------------------------------------------------------------------------------------------
-Fish::Fish(Point2D position, unsigned char size, SPECIES spec) : WaterObject(position), _size(size), _species(spec)
+Fish::Fish(Point2D position, unsigned char size, SPECIES spec) : WaterObject(position, WaterObjectType::FISH), _size(size), _species(spec)
 {
 
 }
 
-Fish::Fish(int x, int y, unsigned char size, SPECIES spec) : WaterObject(Point2D(x,y)), _size(size), _species(spec)
+Fish::Fish(int x, int y, unsigned char size, SPECIES spec) : WaterObject(Point2D(x,y),WaterObjectType::FISH), _size(size), _species(spec)
 {
 
 }

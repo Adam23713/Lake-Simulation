@@ -4,8 +4,8 @@
 //Point2D Definition-------------------------------------
 Point2D::Point2D(int x, int y)
 {
-    if( !SetXPosition(x) && !SetYPosition(y) )
-        _x = _y = int(ERROR_CODE::WrongCoordinate);
+    _x = x;
+    _y = y;
 }
 
 Point2D::Point2D(const Point2D& P1)
@@ -37,26 +37,14 @@ bool Point2D::operator<(const Point2D &P1) const
     return _x < P1._x;
 }
 
-bool Point2D::SetXPosition(int x)
+void Point2D::SetXPosition(int x)
 {
-    if(x <= 0)
-    {
-        _x = x;
-        return true;
-    }
-    else
-        return false;
+    _x = x;
 }
 
-bool Point2D::SetYPosition(int y)
+void Point2D::SetYPosition(int y)
 {
-    if(y <= 0)
-    {
-        _y = y;
-        return true;
-    }
-    else
-        return false;
+    _y = y;
 }
 
 int Point2D::GetXPosition() const
@@ -72,22 +60,29 @@ int Point2D::GetYPosition() const
 
 //Water Object Definition--------------------------------
 
-WaterObject::WaterObject(Point2D position) : _position(position)
+WaterObject::WaterObject(Point2D position,  WaterObjectType type) : _type(type), _position(position)
 {
 }
 
-WaterObject::WaterObject(int x, int y) : _position(Point2D(x,y))
+WaterObject::WaterObject(int x, int y, WaterObjectType type) : _type(type), _position(Point2D(x,y))
 {
 }
 
-bool WaterObject::SetPosition(Point2D point)
+ WaterObjectType WaterObject::GetType() const
 {
-    return ( _position.SetXPosition(point.GetXPosition()) && _position.SetYPosition(point.GetYPosition()));
+    return _type;
 }
 
-bool WaterObject::SetPosition(int x, int y)
+void WaterObject::SetPosition(Point2D point)
 {
-    return ( _position.SetXPosition(x) && _position.SetYPosition(y));
+    _position.SetXPosition(point.GetXPosition());
+    _position.SetYPosition(point.GetYPosition());
+}
+
+void WaterObject::SetPosition(int x, int y)
+{
+    _position.SetXPosition(x);
+    _position.SetYPosition(y);
 }
 
 const Point2D& WaterObject::GetPosition() const
