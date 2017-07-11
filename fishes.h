@@ -4,14 +4,23 @@
 #include "waterobject.h"
 
 enum class SPECIES {Carnivorous, Herbivorous, Omnivorous}; //Carnivorous = Húsevő | Herbivorous = Növényevő | Omnivorous = Mindenevő
+enum class DIRECTION {TopLeft, Top, TopRight, Right, BottomRight, Bottom, BottomLeft, Left};
 
 class Fish : public WaterObject
 {
 
 private:
+    int _xSize;
+    int _ySize;
+    std::vector<std::vector<WaterObject*>> _grid;
     WaterObject* _target = nullptr;
     unsigned char _size;
     SPECIES _species;
+
+    //Private Move Function
+    void randomMove();
+    bool moveXY(WaterObject *object, Point2D point);
+    Point2D generateNewPointCoordinate(DIRECTION direction);
 
 public:
     //Constructors
@@ -20,12 +29,15 @@ public:
     Fish(int x, int y, unsigned char size, SPECIES spec);
 
     //Functions
+    void setTheMapGrid(std::vector<std::vector<WaterObject*>> &grid);
     void SetTarget(WaterObject* fish);
     WaterObject* ShowTarget() const ;
     SPECIES GetSpecies() const;
     unsigned char GetSize() const;
+    void lookAround(WaterObject* vector[]);
+    Point2D lookAroundForTheFood(WaterObject* vector[]);
     void Move();
-    void Eat(WaterObject&);
+    void Eat(WaterObject *);
 
 };
 

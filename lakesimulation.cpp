@@ -2,7 +2,8 @@
 #include <limits>
 #include <QDebug>
 
-LakeSimulation::LakeSimulation(unsigned int x, unsigned int y, std::vector<WaterObject *> &vec) : _xSize(x), _ySize(y)
+LakeSimulation::LakeSimulation(QObject *parent, unsigned int x, unsigned int y, std::vector<WaterObject *> &vec, std::vector<std::vector<WaterObject *> > &map)
+    : QThread(parent), _xSize(x), _ySize(y), _gridMap(map)
 {
     for(auto i : vec)
     {
@@ -17,10 +18,6 @@ LakeSimulation::LakeSimulation(unsigned int x, unsigned int y, std::vector<Water
     }
 
     std::sort(_fishVector.begin(), _fishVector.end(), [](const Fish* fish1, const Fish* fish2){ return fish1->GetSize() < fish2->GetSize(); } );
-
-    for(int i = 0; i < (int)_fishVector.size(); i++)
-        qDebug() << _fishVector.at(i)->GetSize();
-
 }
 
 WaterObject *LakeSimulation::getPlantTarget(int i)
@@ -30,6 +27,8 @@ WaterObject *LakeSimulation::getPlantTarget(int i)
     WaterPlant *plantTarget = nullptr;
     for(unsigned int plantIndex = 0; plantIndex < _plantsVector.size(); plantIndex++)
     {
+        if(_plantsVector.at(i)->GetLive() == false ) continue;
+
         float plantDistance = Point2D::GetDistance(fish->GetPosition(),_plantsVector.at(plantIndex)->GetPosition());
         if(nearestPlant > plantDistance)
         {
@@ -49,6 +48,7 @@ WaterObject *LakeSimulation::getFishTarget(int i)
         float minimumDistance = std::numeric_limits<float>::max();
         for(int j = i - 1; j >= 0; j--)
         {
+            if(_fishVector.at(j)->GetLive() == false) continue;
             if(fish->GetSize() == _fishVector.at(j)->GetSize()) continue;
 
             float distance = Point2D::GetDistance(fish->GetPosition(),_fishVector.at(j)->GetPosition());
@@ -101,26 +101,26 @@ void LakeSimulation::run()
 {
     if(_fishVector.size() == 0) return;
 
+    for(auto i : _fishVector)
+        i->setTheMapGrid(_gridMap);
+
+    runNextStep();
+    emit changeMap();
+
+}
+
+void LakeSimulation::runNextStep()
+{
     //Add target every fish----------------------------------
     for(int i = 0; i < (int)_fishVector.size(); i++)
+    {
+        if(_fishVector.at(i)->GetLive() == false) continue;
+
         _fishVector.at(i)->SetTarget(getWaterObjecTarget(i));
+    }
     //--------------------------------------------------------
 
-    /*for(int i = 0; i < (int)_fishVector.size(); i++)
-    {
-        Fish* fish = _fishVector.at(i);
-        if(fish->ShowTarget() != nullptr)
-        {
-            qDebug() << fish->GetPosition().GetXPosition() << fish->GetPosition().GetYPosition() << "\n" << fish->ShowTarget()->GetPosition().GetXPosition() << fish->ShowTarget()->GetPosition().GetYPosition();
-            qDebug() << "------------------------";
-        }
-        else
-        {
-            qDebug() << fish->GetPosition().GetXPosition() << fish->GetPosition().GetYPosition() << "\nNo target";
-        }
-    }*/
-
     //Move every fish
-
-
+    for(auto i : _fishVector)
+        i->Move();
 }

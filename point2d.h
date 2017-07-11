@@ -18,6 +18,7 @@ public:
     Point2D(const Point2D &P1);
 
     //Operators
+    Point2D& operator+(const Point2D& P1);
     Point2D& operator=(const Point2D& P1);
     bool operator==(const Point2D& P1) const;
     bool operator<( const Point2D& P1) const;

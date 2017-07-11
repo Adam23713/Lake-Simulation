@@ -25,6 +25,7 @@ public:
     ~MainWindow();
 
 private slots:
+    void updateLake();
     void on_actionOpen_File_triggered();
     void on_playPushButton_clicked();
 
@@ -34,6 +35,7 @@ private:
     int _ySize;
     int _fishNumber;
     int _plantsNumber;
+    std::vector<std::vector<WaterObject*>> _gridMap;
     QVector<QLabel*> _picturelabels;
     QVector<QLabel*> _waterObjectLabels;
     std::vector<std::wstring> _fishiesName;
@@ -43,6 +45,7 @@ private:
     Ui::MainWindow *ui;
 
     //Private functions
+    void createWaterObjectMap();
     void drawnTheCleanWater();
     void drawnWaterElement();
     void setSpritesAndToolTipStr(WaterObject* i, QString& path, QString& toolTip);

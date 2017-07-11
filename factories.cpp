@@ -6,12 +6,30 @@ RandomWaterObjectFactory::RandomWaterObjectFactory(std::vector<std::wstring> &sp
     //Set the random number genereator's seed
     _engine.seed(time(nullptr));
 
+    //To avoid two identical coordinates
     for(unsigned int i = 0; i < _xSize; i++)
         for(unsigned int j = 0; j < _ySize; j++)
             _locationsMap[Point2D(i,j)] = false;
 
-    for(auto i : speciesList)
-        _availableFishes.push_back(i);
+    //Number of fish less than number of available and special fish, then
+    //those fish are the primary ones that have been read from the file
+    if( _fishNumber >= _availableFishes.size() + speciesList.size() )
+        for(auto i : speciesList)
+            _availableFishes.push_back(i);
+    else
+    {
+        if(speciesList.size() > 0)
+        {
+            _availableFishes.resize(0);
+            for(unsigned int i = 0; i < _fishNumber; i++)
+                _availableFishes.push_back(speciesList.at(i));
+        }
+        else
+        {
+            _availableFishes.resize(_fishNumber);
+        }
+    }
+    //---------------------------------------------------------------------
 }
 
 Point2D RandomWaterObjectFactory::generateRandomPoint()
@@ -61,6 +79,14 @@ std::vector<WaterObject *> RandomWaterObjectFactory::makeWaterObjectVector()
     if((_xSize * _ySize) < (_fishNumber + _plantsNumber))
         return lakeElements;
 
+    //Generate water plants++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    for(unsigned int i = 0; i < _plantsNumber; i++)
+    {
+        Point2D randomPoint = generateRandomPoint();
+        lakeElements.push_back( new Seaweed(randomPoint.GetXPosition(),randomPoint.GetYPosition()) );
+    }
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
     //Generate all fish species*****************************************************************
     for(auto i : _availableFishes)
     {
@@ -69,20 +95,15 @@ std::vector<WaterObject *> RandomWaterObjectFactory::makeWaterObjectVector()
     //******************************************************************************************
 
     //Generate random fishies--------------------------------------------------------------------
+    int end = (int)_fishNumber - (int)_availableFishes.size();
+    if(end <= 0) return lakeElements;
+
     std::uniform_int_distribution<int> randNumber(0,_availableFishes.size()-1);
-    for(unsigned int i = 0; i < _fishNumber - _availableFishes.size(); i++)
+    for(int i = 0; i < end; i++)
     {
         lakeElements.push_back( makeFishObject(_availableFishes.at(randNumber(_engine))));
     }
     //-------------------------------------------------------------------------------------------
-
-    //Generate water plants++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    for(unsigned int i = 0; i < _plantsNumber; i++)
-    {
-        Point2D randomPoint = generateRandomPoint();
-        lakeElements.push_back( new Seaweed(randomPoint.GetXPosition(),randomPoint.GetYPosition()) );
-    }
-    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     return lakeElements;
 }

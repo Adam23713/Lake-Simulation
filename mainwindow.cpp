@@ -6,8 +6,8 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     _fileIsLoaded = false;
-    _fishNumber = 6;
-    _plantsNumber = 5;
+    _fishNumber = 1;
+    _plantsNumber = 1;
     ui->setupUi(this);
 }
 
@@ -16,7 +16,11 @@ MainWindow::~MainWindow()
     for(auto i : _picturelabels) delete i;
     for(auto i : _waterObjects) delete i;
     for(auto i : _waterObjectLabels) delete i;
-    if(_simulation != nullptr) delete _simulation;
+    if(_simulation != nullptr)
+    {
+        disconnect(_simulation, SIGNAL(changeMap()), this, SLOT(updateLake()));
+        delete _simulation;
+    }
     delete ui;
 }
 
@@ -77,8 +81,35 @@ void MainWindow::on_actionOpen_File_triggered()
 //Start/pause the simulation
 void MainWindow::on_playPushButton_clicked()
 {
-    _simulation = new LakeSimulation(_xSize, _ySize, _waterObjects);
+    createWaterObjectMap();
+    if(_simulation != nullptr)
+    {
+        disconnect(_simulation, SIGNAL(changeMap()), this, SLOT(updateLake()));
+        delete _simulation;
+    }
+    _simulation = new LakeSimulation(this, _xSize, _ySize, _waterObjects, _gridMap);
+
+    connect(_simulation, SIGNAL(changeMap()), this, SLOT(updateLake()));
+
     _simulation->start();
+}
+
+void MainWindow::createWaterObjectMap()
+{
+    if(_gridMap.size())
+        _gridMap.resize(0);
+
+    //Create the lake grid------------------------------------------------------------------------------------------------
+    for(int i = 0; i < _xSize; i++)
+    {
+        std::vector<WaterObject*> vec;
+        _gridMap.push_back(vec);
+        for(int j = 0; j < _ySize; j++)
+            (_gridMap.at(i)).push_back(nullptr);
+    }
+    for(unsigned int i = 0; i < _waterObjects.size(); i++)
+        (_gridMap.at( _waterObjects.at(i)->GetPosition().GetXPosition() )).at( _waterObjects.at(i)->GetPosition().GetYPosition() ) = _waterObjects.at(i);
+    //-----------------------------------------------------------------------------------------------------------------------
 }
 
 void MainWindow::drawnTheCleanWater()
@@ -169,3 +200,26 @@ void MainWindow::setSpritesAndToolTipStr(WaterObject* i, QString& path, QString&
             }break; //switch end
     }
 }
+
+void MainWindow::updateLake()
+{
+    for(unsigned int i = 0; i < _waterObjects.size(); i++)
+    {
+        Point2D point = _waterObjects.at(i)->GetPosition();
+        ui->lakeGrid->removeWidget(_waterObjectLabels.at(i));
+        _waterObjectLabels.at(i)->hide();
+
+        if( _waterObjects.at(i)->GetLive() == true )
+        {
+            ui->lakeGrid->addWidget(_waterObjectLabels.at(i),point.GetXPosition(),point.GetYPosition());
+            _waterObjectLabels.at(i)->show();
+        }
+    }
+    ui->lakeGrid->update();
+}
+
+
+
+
+
+
