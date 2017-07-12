@@ -70,7 +70,7 @@ void LakeSimulation::run()
                     static_cast<Fish*>(obj)->SetMoved(false);
             }
 
-        this->msleep(1000);
+        this->msleep(_speed);
     }
 
 }
@@ -78,11 +78,6 @@ void LakeSimulation::run()
 void LakeSimulation::simulationSpeedChange(int speed)
 {
     _speed = speed;
-}
-
-void LakeSimulation::continueSimulation()
-{
-    _wait = false;
 }
 
 void LakeSimulation::pauseTheSimulation()

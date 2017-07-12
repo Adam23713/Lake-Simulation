@@ -31,7 +31,8 @@ SOURCES += \
     waterplants.cpp \
     factories.cpp \
     lakesimulation.cpp \
-    point2d.cpp
+    point2d.cpp \
+    parametersdialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -40,10 +41,12 @@ HEADERS += \
     waterplants.h \
     factories.h \
     lakesimulation.h \
-    point2d.h
+    point2d.h \
+    parametersdialog.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    parametersdialog.ui
 
 RESOURCES += \
     images.qrc

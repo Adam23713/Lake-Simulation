@@ -25,18 +25,23 @@ public:
     ~MainWindow();
 
 signals:
-    void drawnGidDone();
     void pauseTheSimulation();
 
 private slots:
+    void stopedSimAndExitApp();
     void updateLake();
     void on_actionOpen_File_triggered();
     void on_playPushButton_clicked();
+    void on_forwardPushButton_clicked();
+    void on_rewindPushButton_clicked();
+    void on_actionExit_triggered();
 
 private:
+    bool _exit = false;
     bool _paused = false;
     bool _newsimulation = true;
     bool _fileIsLoaded;
+    int _simulationSpeed = 1000;
     int _xSize;
     int _ySize;
     int _fishNumber;
@@ -51,6 +56,7 @@ private:
     Ui::MainWindow *ui;
 
     //Private functions
+    void cleanSimulationObject();
     void callFactory();
     void createWaterObjectMap();
     void drawnTheCleanWater();

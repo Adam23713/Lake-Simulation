@@ -14,7 +14,6 @@ class LakeSimulation : public QThread
     Q_OBJECT
 
 private:
-    bool _wait;
     bool _pause = false;
     int _speed = 1000;
     unsigned int _xSize;
@@ -30,16 +29,16 @@ private:
     WaterObject* getWaterObjecTarget(Fish *fish);
 
 public:
+    void simulationSpeedChange(int speed);
     LakeSimulation() = delete;
     explicit LakeSimulation(QObject *parent, unsigned int x, unsigned int y, std::vector<std::vector<WaterObject *> > *map);
     void run();
 
 signals:
+    void stoped();
     void changeMap();
 
 public slots:
-    void simulationSpeedChange(int speed);
-    void continueSimulation();
     void pauseTheSimulation();
 };
 

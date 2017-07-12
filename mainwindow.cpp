@@ -23,18 +23,9 @@ void MainWindow::deleteGridMap()
 MainWindow::~MainWindow()
 {
     for(auto i : _picturelabels) delete i;
-    qDebug() << "delete0";
     deleteGridMap();
-    qDebug() << "delete1";
     for(auto i : _waterObjectLabels) delete i;
-    qDebug() << "delete2";
-    if(_simulation != nullptr)
-    {
-        disconnect(_simulation, SIGNAL(changeMap()), this, SLOT(updateLake()));
-        disconnect(this,SIGNAL(pauseTheSimulation()), _simulation, SLOT(pauseTheSimulation()));
-        delete _simulation;
-    }
-    qDebug() << "delete";
+    cleanSimulationObject();
     delete ui;
 }
 
@@ -76,18 +67,13 @@ void MainWindow::on_actionOpen_File_triggered()
         {
             if(_simulation != nullptr)
             {
-                disconnect(_simulation, SIGNAL(changeMap()), this, SLOT(updateLake()));
-                disconnect(this,SIGNAL(pauseTheSimulation()), _simulation, SLOT(pauseTheSimulation()));
-                disconnect(this,SIGNAL(drawnGidDone()),_simulation,SLOT(continueSimulation));
-                delete _simulation;
-                _simulation = nullptr;
+                cleanSimulationObject(); //Delete _simulation variable and dissconect the signal - slot functions
                 _newsimulation = true;
                 _paused = false;
             }
 
             for(auto i : _picturelabels) delete i;
             deleteGridMap();
-
             for(auto i : _waterObjectLabels) delete i;
 
             //Resize the vectors
@@ -133,17 +119,23 @@ void MainWindow::on_playPushButton_clicked()
         {
             ui->playPushButton->setText("Pause");
             ui->playPushButton->setIcon(QIcon(":/images/images/pause.png"));
-            ui->forwardPushButton->setEnabled(true);
-            ui->rewindPushButton->setEnabled(true);
+
+            if(_simulationSpeed > 200)
+                ui->forwardPushButton->setEnabled(true);
+
+            if(_simulationSpeed  < 2000)
+                ui->rewindPushButton->setEnabled(true);
             _simulation->start();
         }
         return;
     }
     else
     {
+        //Create the simulation controller
         _simulation = new LakeSimulation(this, _xSize, _ySize, &_gridMap);
         connect(_simulation, SIGNAL(changeMap()), this, SLOT(updateLake()));
         connect(this,SIGNAL(pauseTheSimulation()), _simulation, SLOT(pauseTheSimulation()));
+        connect(_simulation,SIGNAL(finished()),this,SLOT(stopedSimAndExitApp()));
 
         _simulation->start();
 
@@ -283,8 +275,69 @@ void MainWindow::updateLake()
    drawnWaterElement();
 }
 
+//Speed up
+void MainWindow::on_forwardPushButton_clicked()
+{
+    _paused = true;
+    emit pauseTheSimulation();
+    if( ui->rewindPushButton->isEnabled() == false )
+        ui->rewindPushButton->setEnabled(true);
 
+   _simulationSpeed -= 200;
+   _simulation->simulationSpeedChange(_simulationSpeed);
+   on_playPushButton_clicked();
 
+   //Maximum speed 200ms
+   if(_simulationSpeed == 200)
+       ui->forwardPushButton->setEnabled(false);
 
+}
 
+//Speed down
+void MainWindow::on_rewindPushButton_clicked()
+{
+    _paused = true;
+    emit pauseTheSimulation();
+    if( ui->forwardPushButton->isEnabled() == false )
+        ui->forwardPushButton->setEnabled(true);
 
+    _simulationSpeed += 200;
+    _simulation->simulationSpeedChange(_simulationSpeed);
+    on_playPushButton_clicked();
+
+    //Minimum speed 2sec
+    if(_simulationSpeed  == 2000)
+        ui->rewindPushButton->setEnabled(false);
+}
+
+//Exit buttom
+void MainWindow::on_actionExit_triggered()
+{
+    _exit = true;
+    if(_simulation != nullptr && _paused == false)
+    {
+        //Emit a signal to simualtion stop, and waiting the finished() signal to exit
+        emit pauseTheSimulation();
+        return;
+    }
+    this->close();
+}
+
+void MainWindow::cleanSimulationObject()
+{
+    if(_simulation != nullptr)
+    {
+        disconnect(_simulation, SIGNAL(changeMap()), this, SLOT(updateLake()));
+        disconnect(this,SIGNAL(pauseTheSimulation()), _simulation, SLOT(pauseTheSimulation()));
+        disconnect(_simulation,SIGNAL(finished()),this,SLOT(stopedSimAndExitApp()));
+        delete _simulation;
+    }
+    _simulation = nullptr;
+}
+
+//Exit function
+//If simulation stoped, exit application
+void MainWindow::stopedSimAndExitApp()
+{
+    if(_exit) this->close();
+}
