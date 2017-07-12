@@ -2,6 +2,8 @@
 #define FISHES_H
 
 #include "waterobject.h"
+#include "waterplants.h"
+#include <random>
 
 enum class SPECIES {Carnivorous, Herbivorous, Omnivorous}; //Carnivorous = Húsevő | Herbivorous = Növényevő | Omnivorous = Mindenevő
 enum class DIRECTION {TopLeft, Top, TopRight, Right, BottomRight, Bottom, BottomLeft, Left};
@@ -10,26 +12,31 @@ class Fish : public WaterObject
 {
 
 private:
+    bool _moved = false;
     int _xSize;
     int _ySize;
-    std::vector<std::vector<WaterObject*>> _grid;
+    std::mt19937 _randomEngine;
+    std::vector<std::vector<WaterObject*>> *_grid;
     WaterObject* _target = nullptr;
     unsigned char _size;
     SPECIES _species;
 
     //Private Move Function
     void randomMove();
-    bool moveXY(WaterObject *object, Point2D point);
+    bool moveXY(WaterObject *space, Point2D point);
     Point2D generateNewPointCoordinate(DIRECTION direction);
 
 public:
     //Constructors
     Fish() = delete;
+    virtual ~Fish() = default;
     Fish(Point2D position, unsigned char size, SPECIES spec);
     Fish(int x, int y, unsigned char size, SPECIES spec);
 
     //Functions
-    void setTheMapGrid(std::vector<std::vector<WaterObject*>> &grid);
+    void SetMoved(bool value);
+    bool Moved() const;
+    void setTheMapGrid(std::vector<std::vector<WaterObject *> > *grid);
     void SetTarget(WaterObject* fish);
     WaterObject* ShowTarget() const ;
     SPECIES GetSpecies() const;

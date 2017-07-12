@@ -1,23 +1,32 @@
 #include "fishes.h"
-#include <random>
 #include <QDebug>
 
 //Fish Definition----------------------------------------------------------------------------------------------------
 Fish::Fish(Point2D position, unsigned char size, SPECIES spec) : WaterObject(position, WaterObjectType::FISH), _size(size), _species(spec)
 {
-
+    _randomEngine.seed(time(nullptr));
 }
 
 Fish::Fish(int x, int y, unsigned char size, SPECIES spec) : WaterObject(Point2D(x,y),WaterObjectType::FISH), _size(size), _species(spec)
 {
-
+    _randomEngine.seed(time(nullptr));
 }
 
-void Fish::setTheMapGrid(std::vector<std::vector<WaterObject *> > &grid)
+void Fish::SetMoved(bool value)
+{
+    _moved = value;
+}
+
+bool Fish::Moved() const
+{
+   return _moved;
+}
+
+void Fish::setTheMapGrid(std::vector<std::vector<WaterObject *>> *grid)
 {
     _grid = grid;
-    _xSize = _grid.size();
-    _ySize = _grid.at(0).size();
+    _xSize = _grid->size();
+    _ySize = _grid->at(0).size();
 }
 
 void Fish::SetTarget(WaterObject *fish)
@@ -52,42 +61,42 @@ void Fish::lookAround(WaterObject* vector[])
 
     if(x >= 1 && y >= 1)
     {
-        vector[0] = _grid.at(x-1).at(y-1);
+        vector[0] = _grid->at(x-1).at(y-1);
     }
     else
         vector[0] = nullptr;
 
     if( y >= 1)
     {
-        vector[1] = _grid.at(x).at(y-1);
+        vector[1] = _grid->at(x).at(y-1);
     }
     else
          vector[1] = nullptr;
 
     if( (x < _xSize - 1) && ( y >= 1 ) )
     {
-        vector[2] = _grid.at(x+1).at(y-1);
+        vector[2] = _grid->at(x+1).at(y-1);
     }
     else
         vector[2] = nullptr;
 
     if( x < _xSize - 1)
     {
-        vector[3] = _grid.at(x+1).at(y);
+        vector[3] = _grid->at(x+1).at(y);
     }
     else
         vector[3] = nullptr;
 
     if( (x < _xSize - 1) && (y < _ySize - 1) )
     {
-        vector[4] = _grid.at(x+1).at(y+1);
+        vector[4] = _grid->at(x+1).at(y+1);
     }
     else
         vector[4] = nullptr;
 
     if( y < _ySize - 1)
     {
-        vector[5] = _grid.at(x).at(y+1);
+        vector[5] = _grid->at(x).at(y+1);
     }
     else
         vector[5] = nullptr;
@@ -95,14 +104,14 @@ void Fish::lookAround(WaterObject* vector[])
 
     if( (y < _ySize - 1) && ( x >= 1) )
     {
-        vector[6] = _grid.at(x-1).at(y+1);
+        vector[6] = _grid->at(x-1).at(y+1);
     }
     else
         vector[6] = nullptr;
 
     if( x >= 1)
     {
-        vector[7] = _grid.at(x-1).at(y);
+        vector[7] = _grid->at(x-1).at(y);
     }
     else
         vector[7] = nullptr;
@@ -121,16 +130,16 @@ Point2D Fish::lookAroundForTheFood(WaterObject* vector[])
 
             if( _species == SPECIES::Carnivorous && vector[i]->GetType() == WaterObjectType::FISH )
             {
-                if( _size > static_cast<Fish*>(vector[i])->_size && vector[i]->GetLive())
+                if( _size > static_cast<Fish*>(vector[i])->_size)
                     return vector[i]->GetPosition();
             }
 
-            if( _species == SPECIES::Herbivorous && vector[i]->GetType() == WaterObjectType::PLANT && vector[i]->GetLive())
+            if( _species == SPECIES::Herbivorous && vector[i]->GetType() == WaterObjectType::PLANT)
             {
                 return vector[i]->GetPosition();
             }
 
-            if( _species == SPECIES::Omnivorous && ( vector[i]->GetType() == WaterObjectType::FISH  || vector[i]->GetType() == WaterObjectType::PLANT ) && vector[i]->GetLive() )
+            if( _species == SPECIES::Omnivorous && ( vector[i]->GetType() == WaterObjectType::FISH  || vector[i]->GetType() == WaterObjectType::PLANT ))
             {
                 if(vector[i]->GetType() == WaterObjectType::FISH)
                 {
@@ -155,41 +164,47 @@ void Fish::randomMove()
     lookAround(vector);
 
     //Search free space
+    bool noFreeSpace = true;
     for(int i = 0; i < direction; i++)
     {
-        if( (vector[i] == nullptr) || (vector[i] != nullptr && !vector[i]->GetLive()))
+        if( (vector[i] == nullptr) || (vector[i] != nullptr))
         {
+            noFreeSpace = false;
             break;
         }
-        else
-            return; //No free space
+    }
+    if(noFreeSpace == true)
+    {
+        return;
     }
 
-    //Set random engine
-    std::mt19937 randomEngine;
-    randomEngine.seed(time(nullptr));
     std::uniform_int_distribution<int> choose(0,7);
-
     //Choose a random move function
     bool succesFullStep = false;
     while( !succesFullStep )
     {
-        int num = choose(randomEngine);
+        int num = choose(_randomEngine);
         succesFullStep = moveXY(vector[num], generateNewPointCoordinate( DIRECTION(num) ) );
     }
 }
 
 //Move functions****************************************************************
-bool Fish::moveXY(WaterObject* object, Point2D point)
+bool Fish::moveXY(WaterObject* space, Point2D point)
 {
-    if( (object == nullptr) || (object != nullptr && !object->GetLive()))
+    if( (space == nullptr) )
     {
         Point2D newCoordinate = Point2D(this->GetPosition().GetXPosition(),this->GetPosition().GetYPosition()) + point;
 
         if( (newCoordinate.GetXPosition() < 0 || newCoordinate.GetXPosition() >= _xSize) || (newCoordinate.GetYPosition() < 0 || newCoordinate.GetYPosition() >= _ySize))
             return false;
 
+        //Move new coordinate and delete old space
+        int oldX = this->GetPosition().GetXPosition();
+        int oldY = this->GetPosition().GetYPosition();
         this->SetPosition( newCoordinate );
+        _grid->at(oldX).at(oldY) = nullptr;
+        _grid->at(newCoordinate.GetXPosition()).at(newCoordinate.GetYPosition()) = this;
+
         return true;
     }
     return false;
@@ -219,6 +234,9 @@ Point2D Fish::generateNewPointCoordinate(DIRECTION direction)
 
 void Fish::Move()
 {
+    if(_moved == true) return;
+    _moved = true;
+
     if(_target == nullptr)
     {
         randomMove();
@@ -235,20 +253,27 @@ void Fish::Move()
     int myX = this->GetPosition().GetXPosition();
     int myY = this->GetPosition().GetYPosition();
 
-
     Point2D p = lookAroundForTheFood(vector);
     if(p.GetXPosition() != -1 && p.GetYPosition() != -1)
     {
-        Eat( _grid.at(p.GetXPosition()).at(p.GetYPosition()) );
+        Eat( _grid->at(p.GetXPosition()).at(p.GetYPosition()) );
         return;
     }
 
     //Search free space------------------------------------------------------------------------
+    bool noFreeSpace = true;
     for(int i = 0; i < direction; i++)
-        if( (vector[i] == nullptr) || (vector[i] != nullptr && !vector[i]->GetLive()))
+    {
+        if( (vector[i] == nullptr) || (vector[i] != nullptr))
+        {
+            noFreeSpace = false;
             break;
-        else
-            return; //No free space
+        }
+    }
+    if(noFreeSpace == true)
+    {
+        return;
+    }
     //----------------------------------------------------------------------------------------
 
     //Top left corner
@@ -305,7 +330,11 @@ void Fish::Move()
 
 void Fish::Eat(WaterObject* obj)
 {
-    obj->SetLive(false);
+    //qDebug() << "Nyam nyam..." << static_cast<Fish*>(_target)->_size;
+    int x = obj->GetPosition().GetXPosition();
+    int y = obj->GetPosition().GetYPosition();
+    delete _grid->at(x).at(y);
+    _grid->at(x).at(y) = nullptr;
 }
 //----------------------------------------------------------------------------------------------------------------------
 

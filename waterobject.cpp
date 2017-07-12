@@ -10,16 +10,6 @@ WaterObject::WaterObject(int x, int y, WaterObjectType type) : _type(type), _pos
 {
 }
 
-void WaterObject::SetLive(bool value)
-{
-    _live = value;
-}
-
-bool WaterObject::GetLive() const
-{
-    return _live;
-}
-
  WaterObjectType WaterObject::GetType() const
 {
     return _type;

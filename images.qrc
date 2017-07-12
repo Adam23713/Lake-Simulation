@@ -14,5 +14,6 @@
         <file>images/Herbivorous.png</file>
         <file>images/Omnivorous.png</file>
         <file>images/setting.png</file>
+        <file>images/pause.png</file>
     </qresource>
 </RCC>

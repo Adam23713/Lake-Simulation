@@ -13,6 +13,7 @@
 class Factory
 {
 public:
+    virtual ~Factory() = default;
     virtual std::vector<WaterObject*> makeWaterObjectVector() = 0;
 };
 //********************************************************************

@@ -24,12 +24,18 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+signals:
+    void drawnGidDone();
+    void pauseTheSimulation();
+
 private slots:
     void updateLake();
     void on_actionOpen_File_triggered();
     void on_playPushButton_clicked();
 
 private:
+    bool _paused = false;
+    bool _newsimulation = true;
     bool _fileIsLoaded;
     int _xSize;
     int _ySize;
@@ -45,11 +51,13 @@ private:
     Ui::MainWindow *ui;
 
     //Private functions
+    void callFactory();
     void createWaterObjectMap();
     void drawnTheCleanWater();
     void drawnWaterElement();
     void setSpritesAndToolTipStr(WaterObject* i, QString& path, QString& toolTip);
 
+    void deleteGridMap();
 };
 
 #endif // MAINWINDOW_H

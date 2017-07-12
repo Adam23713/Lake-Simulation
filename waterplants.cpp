@@ -1,4 +1,5 @@
 #include "waterplants.h"
+#include <QDebug>
 
 WaterPlant::WaterPlant(Point2D position) : WaterObject(position,WaterObjectType::PLANT), _live(LIVE::Healthy)
 {
@@ -23,11 +24,9 @@ void WaterPlant::SetToLiveOrDeath(LIVE value)
 //Seaweed definition******************************************************************
 Seaweed::Seaweed(Point2D position) : WaterPlant(position)
 {
-
 }
 
 Seaweed::Seaweed(int x, int y) : WaterPlant(x,y)
 {
-
 }
 //************************************************************************************

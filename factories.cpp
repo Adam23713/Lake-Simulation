@@ -1,4 +1,5 @@
 #include "factories.h"
+#include <QDebug>
 
 RandomWaterObjectFactory::RandomWaterObjectFactory(std::vector<std::wstring> &speciesList, unsigned int xSize, unsigned int ySize, unsigned int fishesNumber, unsigned int plantsNumber)
     : _xSize(xSize), _ySize(ySize), _fishNumber(fishesNumber), _plantsNumber(plantsNumber)
@@ -13,6 +14,7 @@ RandomWaterObjectFactory::RandomWaterObjectFactory(std::vector<std::wstring> &sp
 
     //Number of fish less than number of available and special fish, then
     //those fish are the primary ones that have been read from the file
+    //qDebug() << _fishNumber << _availableFishes.size() << speciesList.size();
     if( _fishNumber >= _availableFishes.size() + speciesList.size() )
         for(auto i : speciesList)
             _availableFishes.push_back(i);
@@ -21,8 +23,11 @@ RandomWaterObjectFactory::RandomWaterObjectFactory(std::vector<std::wstring> &sp
         if(speciesList.size() > 0)
         {
             _availableFishes.resize(0);
-            for(unsigned int i = 0; i < _fishNumber; i++)
+            for(unsigned int i = 0; i < speciesList.size(); i++)
+            {
+                if(i == _fishNumber) break;
                 _availableFishes.push_back(speciesList.at(i));
+            }
         }
         else
         {

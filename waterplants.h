@@ -13,6 +13,7 @@ private:
 public:
     //Constructors
     WaterPlant() = delete;
+    virtual ~WaterPlant() = default;
     WaterPlant(Point2D position);
     WaterPlant(int x, int y);
 
@@ -26,6 +27,7 @@ public:
 class Seaweed final : public WaterPlant
 {
 public:
+   ~Seaweed() = default;
     Seaweed() = delete;
     Seaweed(Point2D position);
     Seaweed(int x, int y);
