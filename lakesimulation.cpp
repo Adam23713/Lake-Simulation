@@ -46,6 +46,11 @@ WaterObject *LakeSimulation::getWaterObjecTarget(Fish* fish)
     return target;
 }
 
+void LakeSimulation::setDry(bool value)
+{
+    _dryTheLake = value;
+}
+
 void LakeSimulation::GetLakeBorder(int *top, int *right, int *bottom, int *left)
 {
     *top = _xTopBorder;
@@ -75,20 +80,24 @@ void LakeSimulation::run()
         mutex.unlock();
 
         moveAndEatAllFish();
-        if(_deadZoneNumber > 0)
+
+        if(_dryTheLake)
         {
-            dryTheLake();
-        }
-        else
-        {
-            if( (_deadZoneNumber = syncDry()) == 0 )
+            if(_deadZoneNumber > 0)
             {
-                emit changeMap();
-                emit SimulationFinish();
-                break;
+                dryTheLake();
             }
+            else
+            {
+                if( (_deadZoneNumber = syncDry()) == 0 )
+                {
+                    emit changeMap();
+                    emit SimulationFinish();
+                    break;
+                }
+            }
+            _deadZoneNumber--;
         }
-        _deadZoneNumber--;
         emit changeMap();
 
         //All fish will get the chance to move

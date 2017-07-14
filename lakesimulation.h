@@ -18,6 +18,7 @@ class LakeSimulation : public QThread
 private:
     enum class SIDE {TOP, BOTTOM, RIGHT, LEFT};
 
+    bool _dryTheLake = true;
     bool _pause = false;
     int _speed = 1000;
 
@@ -43,6 +44,7 @@ private:
     WaterObject* getWaterObjecTarget(Fish *fish);
 
 public:
+    void setDry(bool value);
     void GetLakeBorder(int* top, int* right, int* bottom, int* left);
     void simulationSpeedChange(int speed);
     LakeSimulation() = delete;

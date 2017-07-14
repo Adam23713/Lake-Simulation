@@ -6,7 +6,9 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     _fileIsLoaded = false;
-    _fishNumber = 50;
+    _xSize = 19;
+    _ySize = 30;
+    _fishNumber = 100;
     _plantsNumber = 30;
     ui->setupUi(this);
 }
@@ -18,6 +20,7 @@ void MainWindow::deleteGridMap()
             if(_gridMap.at(i).at(j) != nullptr)
                 delete _gridMap.at(i).at(j);
     _gridMap.resize(0);
+    resetBorders();
 }
 
 MainWindow::~MainWindow()
@@ -31,7 +34,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::SimulationFinish()
 {
-    //cleanSimulationObject();
+    _simulationSpeed = 1000;
     ui->playPushButton->setEnabled(false);
     ui->forwardPushButton->setEnabled(false);
     ui->rewindPushButton->setEnabled(false);
@@ -39,6 +42,21 @@ void MainWindow::SimulationFinish()
     ui->playPushButton->setIcon(QIcon(":/images/images/play.png"));
     _newsimulation = true;
     _paused = false;
+    _simulationFinished = true;
+}
+
+void MainWindow::cleanSimulationObject()
+{
+    if(_simulation != nullptr)
+    {
+        _simulationSpeed = 1000;
+        disconnect(_simulation, SIGNAL(changeMap()), this, SLOT(updateLake()));
+        disconnect(this,SIGNAL(pauseTheSimulation()), _simulation, SLOT(pauseTheSimulation()));
+        disconnect(_simulation,SIGNAL(finished()),this,SLOT(stopedSimAndExitApp()));
+        disconnect(_simulation,SIGNAL(SimulationFinish()),this,SLOT(SimulationFinish()));
+        delete _simulation;
+    }
+    _simulation = nullptr;
 }
 
 void MainWindow::resetBorders()
@@ -51,14 +69,45 @@ void MainWindow::resetBorders()
     //----------------------------
 }
 
+void MainWindow::resetVectorsAndData()
+{
+    if(_simulation != nullptr)
+    {
+        cleanSimulationObject(); //Delete _simulation variable and dissconect the signal - slot functions
+        _newsimulation = true;
+        _paused = false;
+    }
+
+    for(auto i : _picturelabels) delete i;
+    deleteGridMap();
+    for(auto i : _waterObjectLabels) delete i;
+
+    //Resize the vectors
+    _picturelabels.resize(0);
+    _fishiesName.resize(0);
+    _waterObjects.resize(0);
+    _waterObjectLabels.resize(0);
+}
+
+void MainWindow::inicializeTheLake()
+{
+    resetBorders();
+    drawnTheCleanWater();
+    callFactory();
+    createWaterObjectMap();
+    drawnWaterElement();
+    ui->playPushButton->setEnabled(true);
+}
+
 //Open file, read it and drawn the lake
 void MainWindow::on_actionOpen_File_triggered()
 {
     if(_simulation != nullptr)
     {
         emit pauseTheSimulation();
-        ui->playPushButton->setText("Play");
-        ui->playPushButton->setIcon(QIcon(":/images/images/play.png"));
+        SimulationFinish();
+        //ui->playPushButton->setText("Play");
+        //ui->playPushButton->setIcon(QIcon(":/images/images/play.png"));
     }
 
     QStringList xySize;
@@ -80,29 +129,13 @@ void MainWindow::on_actionOpen_File_triggered()
         {
             line = in.readLine();
             names.insert(line);
-            //_fishiesName.insert(line.toStdWString()); //Convert QString to std::wstring
         }
         inputFile.close();
 
         //Delete old Object and datas------------------------------------------------
         if(_fileIsLoaded)
         {
-            if(_simulation != nullptr)
-            {
-                cleanSimulationObject(); //Delete _simulation variable and dissconect the signal - slot functions
-                _newsimulation = true;
-                _paused = false;
-            }
-
-            for(auto i : _picturelabels) delete i;
-            deleteGridMap();
-            for(auto i : _waterObjectLabels) delete i;
-
-            //Resize the vectors
-            _picturelabels.resize(0);
-            _fishiesName.resize(0);
-            _waterObjects.resize(0);
-            _waterObjectLabels.resize(0);
+            resetVectorsAndData();
         }
         _fileIsLoaded = true;
         //-----------------------------------------------------------------------------
@@ -112,12 +145,8 @@ void MainWindow::on_actionOpen_File_triggered()
             _fishiesName.push_back(i.toStdWString());
 
         //Drawn the lake and enabled the start button
-        resetBorders();
-        drawnTheCleanWater();
-        callFactory();
-        createWaterObjectMap();
-        drawnWaterElement();
-        ui->playPushButton->setEnabled(true);
+        _dryTheLake = true;
+        inicializeTheLake();
         //********************************************
     }
     else
@@ -155,7 +184,9 @@ void MainWindow::on_playPushButton_clicked()
     else
     {
         //Create the simulation controller
+        _simulationFinished = false;
         _simulation = new LakeSimulation(this, _xSize, _ySize, &_gridMap);
+        _simulation->setDry(_dryTheLake);
         connect(_simulation, SIGNAL(changeMap()), this, SLOT(updateLake()));
         connect(this,SIGNAL(pauseTheSimulation()), _simulation, SLOT(pauseTheSimulation()));
         connect(_simulation,SIGNAL(finished()),this,SLOT(stopedSimAndExitApp()));
@@ -213,6 +244,7 @@ void MainWindow::createWaterObjectMap()
     }
     _gridMap.resize(0);
 
+    resetBorders();
     //Create the lake grid------------------------------------------------------------------------------------------------
     for(int i = 0; i < _xSize; i++)
     {
@@ -255,7 +287,7 @@ void MainWindow::drawnDeadZone(unsigned int x, unsigned int y)
 
 void MainWindow::drawnWaterElement()
 {
-    unsigned int xBegin, yBegin, yEnd;
+    unsigned int yBegin, yEnd;
     int top, right, bottom, left;
 
     yBegin = _oldTopBorder;
@@ -416,20 +448,6 @@ void MainWindow::on_actionExit_triggered()
     this->close();
 }
 
-void MainWindow::cleanSimulationObject()
-{
-    if(_simulation != nullptr)
-    {
-        _simulationSpeed = 1000;
-        disconnect(_simulation, SIGNAL(changeMap()), this, SLOT(updateLake()));
-        disconnect(this,SIGNAL(pauseTheSimulation()), _simulation, SLOT(pauseTheSimulation()));
-        disconnect(_simulation,SIGNAL(finished()),this,SLOT(stopedSimAndExitApp()));
-        disconnect(_simulation,SIGNAL(SimulationFinish()),this,SLOT(SimulationFinish()));
-        delete _simulation;
-    }
-    _simulation = nullptr;
-}
-
 //Exit functions------------------------------------------------
 //If simulation stoped, exit application
 void MainWindow::stopedSimAndExitApp()
@@ -437,14 +455,38 @@ void MainWindow::stopedSimAndExitApp()
     if(_exit) this->close();
 }
 
-void MainWindow::closeEvent (QCloseEvent *event)
+void MainWindow::closeEvent(QCloseEvent *event)
 {
+    event->isAccepted();
     on_actionExit_triggered();
 }
 //--------------------------------------------------------------
 
+//Start Settings Dialog
 void MainWindow::on_actionChange_parameters_triggered()
 {
-    ParametersDialog dialog;
-    dialog.exec();
+    bool push = false;
+    if(_simulation != nullptr && _paused == false && _simulationFinished == false)
+    {
+        on_playPushButton_clicked();
+        push = true;
+    }
+
+    bool cancel = true;
+    _settingsDialog = new ParametersDialog(this,_xSize,_ySize,_fishNumber,_plantsNumber,_dryTheLake, cancel);
+    _settingsDialog->exec();
+    delete _settingsDialog;
+
+    if(cancel)
+    {
+        //Continue simulation
+        if(_simulation != nullptr && push == true)
+            on_playPushButton_clicked();
+    }
+    else
+    {
+        resetVectorsAndData();
+        inicializeTheLake();
+    }
+
 }

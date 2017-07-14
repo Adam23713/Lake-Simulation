@@ -47,11 +47,12 @@ private:
     int _oldRightBorder;
     int _oldBottomBorder;
     int _oldLeftBorder;
-
+    bool _dryTheLake = true;
     bool _exit = false;
     bool _paused = false;
     bool _newsimulation = true;
     bool _fileIsLoaded;
+    bool _simulationFinished = false;
     int _simulationSpeed = 1000;
     int _xSize;
     int _ySize;
@@ -63,7 +64,8 @@ private:
     std::vector<std::wstring> _fishiesName;
     std::vector<WaterObject*> _waterObjects;
 
-    LakeSimulation* _simulation = nullptr;
+    ParametersDialog *_settingsDialog = nullptr;
+    LakeSimulation *_simulation = nullptr;
     Ui::MainWindow *ui;
 
     //Private functions
@@ -77,6 +79,8 @@ private:
     void drawnWaterElement();
     void setSpritesAndToolTipStr(WaterObject* i, QString& path, QString& toolTip);
     void deleteGridMap();
+    void resetVectorsAndData();
+    void inicializeTheLake();
 };
 
 #endif // MAINWINDOW_H
