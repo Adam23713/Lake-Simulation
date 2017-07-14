@@ -5,7 +5,7 @@
 #include <vector>
 #include "point2d.h"
 
-enum class WaterObjectType { FISH, PLANT };
+enum class WaterObjectType { FISH, PLANT, DEADZONE };
 
 class WaterObject
 {

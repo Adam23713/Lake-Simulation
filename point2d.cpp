@@ -17,10 +17,11 @@ Point2D::Point2D(const Point2D& P1)
     *this = P1;
 }
 
-Point2D &Point2D::operator+(const Point2D &P1)
+Point2D& Point2D::operator+(const Point2D &P1)
 {
     this->_x = this->_x + P1._x;
     this->_y = this->_y + P1._y;
+    return *this;
 }
 
 Point2D& Point2D::operator=(const Point2D &P1)

@@ -15,6 +15,11 @@ public:
     explicit ParametersDialog(QWidget *parent = 0);
     ~ParametersDialog();
 
+private slots:
+    void on_pushButtonCancel_clicked();
+
+    void on_pushButtonOK_clicked();
+
 private:
     Ui::ParametersDialog *ui;
 };

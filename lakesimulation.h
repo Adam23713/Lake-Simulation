@@ -4,9 +4,11 @@
 #include <QtCore>
 #include <QObject>
 #include <algorithm>
+#include <random>
 #include "waterobject.h"
 #include "waterplants.h"
 #include "fishes.h"
+#include "deadzone.h"
 
 class LakeSimulation : public QThread
 {
@@ -14,28 +16,41 @@ class LakeSimulation : public QThread
     Q_OBJECT
 
 private:
+    enum class SIDE {TOP, BOTTOM, RIGHT, LEFT};
+
     bool _pause = false;
     int _speed = 1000;
+
+    int _deadZoneNumber;
+    int _xTopBorder;
+    int _yRightBorder;
+    int _xBottomBorder;
+    int _yLeftBorder;
+
     unsigned int _xSize;
     unsigned int _ySize;
-    //std::vector<WaterPlant*> _plantsVector;
+    std::mt19937 _randomEngine;
     std::vector<std::vector<WaterObject*>> *_gridMap;
-    //std::vector<Fish*> _fishVector;
 
     //Private Functions
-    void runNextStep();
+    int syncDry();
+    void dryTheLake();
+    void dryTopOrDown(SIDE side);
+    void dryRightOrLeft(SIDE side);
+    void moveAndEatAllFish();
     WaterObject* getPlantTarget(int i);
     WaterObject* getFishTarget(int i);
     WaterObject* getWaterObjecTarget(Fish *fish);
 
 public:
+    void GetLakeBorder(int* top, int* right, int* bottom, int* left);
     void simulationSpeedChange(int speed);
     LakeSimulation() = delete;
     explicit LakeSimulation(QObject *parent, unsigned int x, unsigned int y, std::vector<std::vector<WaterObject *> > *map);
     void run();
 
 signals:
-    void stoped();
+    void SimulationFinish();
     void changeMap();
 
 public slots:

@@ -6,7 +6,7 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     _fileIsLoaded = false;
-    _fishNumber = 100;
+    _fishNumber = 50;
     _plantsNumber = 30;
     ui->setupUi(this);
 }
@@ -27,6 +27,28 @@ MainWindow::~MainWindow()
     for(auto i : _waterObjectLabels) delete i;
     cleanSimulationObject();
     delete ui;
+}
+
+void MainWindow::SimulationFinish()
+{
+    //cleanSimulationObject();
+    ui->playPushButton->setEnabled(false);
+    ui->forwardPushButton->setEnabled(false);
+    ui->rewindPushButton->setEnabled(false);
+    ui->playPushButton->setText("Play");
+    ui->playPushButton->setIcon(QIcon(":/images/images/play.png"));
+    _newsimulation = true;
+    _paused = false;
+}
+
+void MainWindow::resetBorders()
+{
+    //Due to dehydration--------
+    _oldTopBorder = 0;
+    _oldBottomBorder = _xSize - 1;
+    _oldRightBorder = _ySize - 1;
+    _oldLeftBorder = 0;
+    //----------------------------
 }
 
 //Open file, read it and drawn the lake
@@ -90,6 +112,7 @@ void MainWindow::on_actionOpen_File_triggered()
             _fishiesName.push_back(i.toStdWString());
 
         //Drawn the lake and enabled the start button
+        resetBorders();
         drawnTheCleanWater();
         callFactory();
         createWaterObjectMap();
@@ -136,6 +159,7 @@ void MainWindow::on_playPushButton_clicked()
         connect(_simulation, SIGNAL(changeMap()), this, SLOT(updateLake()));
         connect(this,SIGNAL(pauseTheSimulation()), _simulation, SLOT(pauseTheSimulation()));
         connect(_simulation,SIGNAL(finished()),this,SLOT(stopedSimAndExitApp()));
+        connect(_simulation,SIGNAL(SimulationFinish()),this,SLOT(SimulationFinish()));
 
         _simulation->start();
 
@@ -202,14 +226,55 @@ void MainWindow::createWaterObjectMap()
     //-----------------------------------------------------------------------------------------------------------------------
 }
 
+void MainWindow::drawnDeadZone(unsigned int x, unsigned int y)
+{
+    QString toolTip;
+    QString path;
+    DeadZone* zone = static_cast<DeadZone*>(_gridMap.at(x).at(y));
+    if( zone->WhatIsOnIt() == WaterObjectType::FISH)
+    {
+        path=":/images/images/deadzoneFish.png";
+        toolTip ="Dead fish";
+    }
+    else if(zone->WhatIsOnIt() == WaterObjectType::PLANT)
+    {
+        path=":/images/images/deadzonePlant.png";
+        toolTip ="Dead plant";
+    }
+    else
+    {
+        path=":/images/images/dry.png";
+        toolTip ="Land";
+    }
+
+    zone->setDrawnIt(true);
+    int coordinates = (x * _gridMap.at(x).size()) + (y);
+    _picturelabels.at(coordinates)->setToolTip(toolTip);
+    _picturelabels.at(coordinates)->setPixmap(QPixmap(path));
+}
+
 void MainWindow::drawnWaterElement()
 {
+    unsigned int xBegin, yBegin, yEnd;
+    int top, right, bottom, left;
+
+    yBegin = _oldTopBorder;
+    yEnd = _oldBottomBorder;
+
     //Drawn Water elements
-    for(unsigned int x = 0; x < _gridMap.size(); x++)
+    for(unsigned int x = yBegin; x < yEnd+1; x++)
     {
         for(unsigned int y = 0; y < _gridMap.at(x).size(); y++)
         {
             if(_gridMap.at(x).at(y) == nullptr) continue;
+
+            if(_gridMap.at(x).at(y)->GetType() == WaterObjectType::DEADZONE)
+            {
+                if( static_cast<DeadZone*>(_gridMap.at(x).at(y))->drawndIt() == false )
+                    drawnDeadZone(x,y);
+                else
+                    continue;
+            }
 
             QString path;
             QString toolTip;
@@ -227,6 +292,13 @@ void MainWindow::drawnWaterElement()
             _waterObjectLabels.push_back(label);
         }
     }
+    if(_simulation !=nullptr)
+    {
+
+        _simulation->GetLakeBorder(&top, &right, &bottom, &left);
+        if(_oldTopBorder < top) _oldTopBorder = top;
+        if(_oldBottomBorder > bottom) _oldBottomBorder = bottom;
+    }
     ui->lakeGrid->update();
 }
 
@@ -234,19 +306,40 @@ void MainWindow::setSpritesAndToolTipStr(WaterObject* i, QString& path, QString&
 {
     WaterObjectType var = i->GetType();
     Point2D point = i->GetPosition();
-    switch(var)
-    {
-        case WaterObjectType::PLANT:
-            path=":/images/images/plant.png";
-            toolTip = "Type: Plant\nName: Seaweed\nCoordinates: " + QString::number(point.GetXPosition()) + ";" + QString::number(point.GetYPosition());
-            break;
 
-        case WaterObjectType::FISH:
-            Fish* fish = static_cast<Fish*>(i);
-            SPECIES value = fish->GetSpecies();
-            QString strSize = "\nSize: " + QString::number( fish->GetSize() );
-            switch(value)
-            {
+    if( var == WaterObjectType::PLANT)
+    {
+        path=":/images/images/plant.png";
+        toolTip = "Type: Plant\nName: Seaweed\nCoordinates: " + QString::number(point.GetXPosition()) + ";" + QString::number(point.GetYPosition());
+    }
+
+    /*if( var == WaterObjectType::DEADZONE)
+    {
+        DeadZone* zone = static_cast<DeadZone*>(i);
+        if( zone->WhatIsOnIt() == WaterObjectType::FISH)
+        {
+            path=":/images/images/deadzoneFish.png";
+            toolTip ="Dead fish";
+        }
+        else if(zone->WhatIsOnIt() == WaterObjectType::PLANT)
+        {
+            path=":/images/images/deadzonePlant.png";
+            toolTip ="Dead plant";
+        }
+        else
+        {
+            path=":/images/images/dry.png";
+            toolTip ="Land";
+        }
+    }*/
+
+    if( var == WaterObjectType::FISH)
+    {
+        Fish* fish = static_cast<Fish*>(i);
+        SPECIES value = fish->GetSpecies();
+        QString strSize = "\nSize: " + QString::number( fish->GetSize() );
+        switch(value)
+        {
             case SPECIES::Carnivorous:
                 path = ":/images/images/Carnivorous.png";
                 toolTip = "Type: Fish\nEat: Meats\nCoordinates: " + QString::number(point.GetXPosition()) + ";" + QString::number(point.GetYPosition()) + strSize;
@@ -260,7 +353,7 @@ void MainWindow::setSpritesAndToolTipStr(WaterObject* i, QString& path, QString&
                 path = ":/images/images/Omnivorous.png";
                 toolTip = "Type: Fish\nName: " + fishName + "\nEat: Meats and plants\nCoordinates: " + QString::number(point.GetXPosition()) + ";" + QString::number(point.GetYPosition()) + strSize;
                 break;
-            }break; //switch end
+          }//switch end
     }
 }
 
@@ -327,17 +420,31 @@ void MainWindow::cleanSimulationObject()
 {
     if(_simulation != nullptr)
     {
+        _simulationSpeed = 1000;
         disconnect(_simulation, SIGNAL(changeMap()), this, SLOT(updateLake()));
         disconnect(this,SIGNAL(pauseTheSimulation()), _simulation, SLOT(pauseTheSimulation()));
         disconnect(_simulation,SIGNAL(finished()),this,SLOT(stopedSimAndExitApp()));
+        disconnect(_simulation,SIGNAL(SimulationFinish()),this,SLOT(SimulationFinish()));
         delete _simulation;
     }
     _simulation = nullptr;
 }
 
-//Exit function
+//Exit functions------------------------------------------------
 //If simulation stoped, exit application
 void MainWindow::stopedSimAndExitApp()
 {
     if(_exit) this->close();
+}
+
+void MainWindow::closeEvent (QCloseEvent *event)
+{
+    on_actionExit_triggered();
+}
+//--------------------------------------------------------------
+
+void MainWindow::on_actionChange_parameters_triggered()
+{
+    ParametersDialog dialog;
+    dialog.exec();
 }

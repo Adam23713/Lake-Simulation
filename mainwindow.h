@@ -7,8 +7,11 @@
 #include <QMainWindow>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QCloseEvent>
 #include <fstream>
 #include <set>
+#include "parametersdialog.h"
+#include "deadzone.h"
 #include "lakesimulation.h"
 #include "factories.h"
 
@@ -28,6 +31,7 @@ signals:
     void pauseTheSimulation();
 
 private slots:
+    void SimulationFinish();
     void stopedSimAndExitApp();
     void updateLake();
     void on_actionOpen_File_triggered();
@@ -36,7 +40,14 @@ private slots:
     void on_rewindPushButton_clicked();
     void on_actionExit_triggered();
 
+    void on_actionChange_parameters_triggered();
+
 private:
+    int _oldTopBorder;
+    int _oldRightBorder;
+    int _oldBottomBorder;
+    int _oldLeftBorder;
+
     bool _exit = false;
     bool _paused = false;
     bool _newsimulation = true;
@@ -56,13 +67,15 @@ private:
     Ui::MainWindow *ui;
 
     //Private functions
+    void resetBorders();
+    void drawnDeadZone(unsigned int x, unsigned int y);
+    void closeEvent (QCloseEvent *event) override;
     void cleanSimulationObject();
     void callFactory();
     void createWaterObjectMap();
     void drawnTheCleanWater();
     void drawnWaterElement();
     void setSpritesAndToolTipStr(WaterObject* i, QString& path, QString& toolTip);
-
     void deleteGridMap();
 };
 

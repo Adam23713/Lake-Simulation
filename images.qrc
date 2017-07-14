@@ -15,5 +15,7 @@
         <file>images/Omnivorous.png</file>
         <file>images/setting.png</file>
         <file>images/pause.png</file>
+        <file>images/deadzoneFish.png</file>
+        <file>images/deadzonePlant.png</file>
     </qresource>
 </RCC>

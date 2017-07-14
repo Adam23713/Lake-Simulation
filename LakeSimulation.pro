@@ -32,7 +32,8 @@ SOURCES += \
     factories.cpp \
     lakesimulation.cpp \
     point2d.cpp \
-    parametersdialog.cpp
+    parametersdialog.cpp \
+    deadzone.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -42,7 +43,8 @@ HEADERS += \
     factories.h \
     lakesimulation.h \
     point2d.h \
-    parametersdialog.h
+    parametersdialog.h \
+    deadzone.h
 
 FORMS += \
         mainwindow.ui \

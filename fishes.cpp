@@ -1,5 +1,4 @@
 #include "fishes.h"
-#include <QDebug>
 
 //Fish Definition----------------------------------------------------------------------------------------------------
 Fish::Fish(Point2D position, unsigned char size, SPECIES spec) : WaterObject(position, WaterObjectType::FISH), _size(size), _species(spec)
@@ -167,7 +166,7 @@ void Fish::randomMove()
     bool noFreeSpace = true;
     for(int i = 0; i < direction; i++)
     {
-        if( (vector[i] == nullptr) || (vector[i] != nullptr))
+        if( vector[i] == nullptr)
         {
             noFreeSpace = false;
             break;
@@ -178,13 +177,24 @@ void Fish::randomMove()
         return;
     }
 
+    //Random move
     std::uniform_int_distribution<int> choose(0,7);
-    //Choose a random move function
+    bool done[direction] = {false,false,false,false,false,false,false,false};
     bool succesFullStep = false;
-    while( !succesFullStep )
+    while( !succesFullStep)
     {
         int num = choose(_randomEngine);
+        done[num] = true;
         succesFullStep = moveXY(vector[num], generateNewPointCoordinate( DIRECTION(num) ) );
+
+        //Directions that have already been tested
+        int counter = 0;
+        for(int i = 0; i < direction; i++)
+            if(done[i] == true)
+                counter++;
+
+        //The fish can't move
+        if(counter == direction) break;
     }
 }
 
@@ -326,6 +336,8 @@ void Fish::Move()
         if(succesFullStep) return;
     }
 
+    //If the fish don't moved than call randomMove
+    randomMove();
 }
 
 void Fish::Eat(WaterObject* obj)
