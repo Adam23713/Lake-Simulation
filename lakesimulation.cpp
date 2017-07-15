@@ -79,6 +79,7 @@ void LakeSimulation::run()
         if(_pause == true) break;
         mutex.unlock();
 
+        Fish::currentTime++;
         moveAndEatAllFish();
 
         if(_dryTheLake)

@@ -1,5 +1,4 @@
 #include "waterplants.h"
-#include <QDebug>
 
 WaterPlant::WaterPlant(Point2D position) : WaterObject(position,WaterObjectType::PLANT), _live(LIVE::Healthy)
 {

@@ -3,13 +3,26 @@
 
 #include "waterobject.h"
 #include "waterplants.h"
+#include "databaseinterface.h"
 #include <random>
 
+//A halak táplálkozási szokásai
 enum class SPECIES {Carnivorous, Herbivorous, Omnivorous}; //Carnivorous = Húsevő | Herbivorous = Növényevő | Omnivorous = Mindenevő
+
+//8 irányba tudnak elmozdulni a halak
 enum class DIRECTION {TopLeft, Top, TopRight, Right, BottomRight, Bottom, BottomLeft, Left};
+
+
+//A fő Fish osztály. Ebből lehet további speciális osztályokat származtatni. Az abstract factory ilyen típussal tér vissza
 
 class Fish : public WaterObject
 {
+
+#ifdef WITH_SQL
+private:
+    static DatabaseInterface* dataBase;
+    void connectToTheDataBase();
+#endif
 
 private:
     bool _moved = false;
@@ -21,15 +34,22 @@ private:
     unsigned char _size;
     SPECIES _species;
 
+    //Hogy beazonosítsuk a halat
+    static int counter;
+    int _id;
+
+
     //Private Move Function
     void randomMove();
     bool moveXY(WaterObject *space, Point2D point);
     Point2D generateNewPointCoordinate(DIRECTION direction);
 
 public:
+    static int currentTime;
+
     //Constructors
     Fish() = delete;
-    virtual ~Fish() = default;
+    virtual ~Fish();
     Fish(Point2D position, unsigned char size, SPECIES spec);
     Fish(int x, int y, unsigned char size, SPECIES spec);
 
@@ -48,6 +68,7 @@ public:
 
 };
 
+//Minden halat amit egy txt fájlból olvas be SpecialFish típusú hal lesz
 class SpecialFish final : public Fish
 {
 private:
@@ -61,6 +82,8 @@ public:
     //Public functions
     const std::wstring &GetSpeciesName() const;
 };
+
+//További hal osztályok
 
 //Herbivorous
 class CrucianCarp final : public Fish // Crucian carp = Kárász - Növényevő

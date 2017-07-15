@@ -1,14 +1,48 @@
 #include "fishes.h"
 
+#ifdef WITH_SQL
+DatabaseInterface* Fish::dataBase = nullptr;
+
+void Fish::connectToTheDataBase()
+{
+
+    if(dataBase != nullptr) return;
+
+    dataBase = DatabaseInterface::Instance();
+    dataBase->ConnectToTheDataBase("History.db");
+    if(dataBase->IsOpen())
+        dataBase->CreateHistoryTable();
+}
+#endif
+
+int Fish::counter = 0;
+int Fish::currentTime = 0;
+
 //Fish Definition----------------------------------------------------------------------------------------------------
-Fish::Fish(Point2D position, unsigned char size, SPECIES spec) : WaterObject(position, WaterObjectType::FISH), _size(size), _species(spec)
+
+Fish::Fish(Point2D position, unsigned char size, SPECIES spec) : WaterObject(position, WaterObjectType::FISH), _size(size), _species(spec), _id(++counter)
 {
     _randomEngine.seed(time(nullptr));
+
+    #ifdef WITH_SQL
+    connectToTheDataBase();
+    #endif
 }
 
-Fish::Fish(int x, int y, unsigned char size, SPECIES spec) : WaterObject(Point2D(x,y),WaterObjectType::FISH), _size(size), _species(spec)
+Fish::Fish(int x, int y, unsigned char size, SPECIES spec) : WaterObject(Point2D(x,y),WaterObjectType::FISH), _size(size), _species(spec), _id(++counter)
 {
     _randomEngine.seed(time(nullptr));
+
+    #ifdef WITH_SQL
+    connectToTheDataBase();
+    #endif
+}
+
+Fish::~Fish()
+{
+    --counter;
+    if(counter == 0)
+        currentTime = 0;
 }
 
 void Fish::SetMoved(bool value)
@@ -174,6 +208,11 @@ void Fish::randomMove()
     }
     if(noFreeSpace == true)
     {
+        #ifdef WITH_SQL
+        //Write to data base
+        QString eventStr = QString::number(_id) +" can't move";
+        dataBase->AddNewData(currentTime,_id,eventStr);
+        #endif
         return;
     }
 
@@ -194,7 +233,16 @@ void Fish::randomMove()
                 counter++;
 
         //The fish can't move
-        if(counter == direction) break;
+        if(counter == direction)
+        {
+            #ifdef WITH_SQL
+            //Write to data base
+            QString eventStr = QString::number(_id) +" can't move";
+            dataBase->AddNewData(currentTime,_id,eventStr);
+            #endif
+
+            break;
+        }
     }
 }
 
@@ -214,6 +262,12 @@ bool Fish::moveXY(WaterObject* space, Point2D point)
         this->SetPosition( newCoordinate );
         _grid->at(oldX).at(oldY) = nullptr;
         _grid->at(newCoordinate.GetXPosition()).at(newCoordinate.GetYPosition()) = this;
+
+        #ifdef WITH_SQL
+        //Write to data base
+        QString eventStr = QString::number(_id) + " on " + QString::number(oldX) + ";" + QString::number(oldY) + " move to " + QString::number(this->GetPosition().GetXPosition()) + ";" + QString::number(this->GetPosition().GetYPosition());
+        dataBase->AddNewData(currentTime,_id,eventStr);
+        #endif
 
         return true;
     }
@@ -282,6 +336,11 @@ void Fish::Move()
     }
     if(noFreeSpace == true)
     {
+        #ifdef WITH_SQL
+        //Write to data base
+        QString eventStr = QString::number(_id) +" can't move";
+        dataBase->AddNewData(currentTime,_id,eventStr);
+        #endif
         return;
     }
     //----------------------------------------------------------------------------------------
@@ -342,9 +401,22 @@ void Fish::Move()
 
 void Fish::Eat(WaterObject* obj)
 {
-    //qDebug() << "Nyam nyam..." << static_cast<Fish*>(_target)->_size;
     int x = obj->GetPosition().GetXPosition();
     int y = obj->GetPosition().GetYPosition();
+
+    #ifdef WITH_SQL
+    //Write to data base
+    QString strObj;
+    if(obj->GetType() == WaterObjectType::FISH)
+        strObj = QString::number(static_cast<Fish*>(obj)->_id);
+    else
+        strObj = "a plant";
+
+    QString eventStr = "Eat " + strObj +" on " + QString::number(x) + ";" + QString::number(y);
+    dataBase->AddNewData(currentTime,_id,eventStr);
+    #endif
+
+
     delete _grid->at(x).at(y);
     _grid->at(x).at(y) = nullptr;
 }

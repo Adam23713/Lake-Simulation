@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QDebug>
 #include <typeinfo>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -106,8 +105,6 @@ void MainWindow::on_actionOpen_File_triggered()
     {
         emit pauseTheSimulation();
         SimulationFinish();
-        //ui->playPushButton->setText("Play");
-        //ui->playPushButton->setIcon(QIcon(":/images/images/play.png"));
     }
 
     QStringList xySize;
@@ -344,26 +341,6 @@ void MainWindow::setSpritesAndToolTipStr(WaterObject* i, QString& path, QString&
         path=":/images/images/plant.png";
         toolTip = "Type: Plant\nName: Seaweed\nCoordinates: " + QString::number(point.GetXPosition()) + ";" + QString::number(point.GetYPosition());
     }
-
-    /*if( var == WaterObjectType::DEADZONE)
-    {
-        DeadZone* zone = static_cast<DeadZone*>(i);
-        if( zone->WhatIsOnIt() == WaterObjectType::FISH)
-        {
-            path=":/images/images/deadzoneFish.png";
-            toolTip ="Dead fish";
-        }
-        else if(zone->WhatIsOnIt() == WaterObjectType::PLANT)
-        {
-            path=":/images/images/deadzonePlant.png";
-            toolTip ="Dead plant";
-        }
-        else
-        {
-            path=":/images/images/dry.png";
-            toolTip ="Land";
-        }
-    }*/
 
     if( var == WaterObjectType::FISH)
     {

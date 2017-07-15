@@ -3,6 +3,8 @@
 
 #include <QDialog>
 
+//A settings menüpontért felelős osztály
+
 namespace Ui {
 class ParametersDialog;
 }
@@ -10,14 +12,6 @@ class ParametersDialog;
 class ParametersDialog : public QDialog
 {
     Q_OBJECT
-
-private:
-    bool& _cancel;
-    bool& _dry;
-    int& _xSize;
-    int& _ySize;
-    int& _fishNumber;
-    int& _plantsNumber;
 
 public:
     explicit ParametersDialog(QWidget *parent, int& x, int& y, int& fishN, int& plantsN, bool& dry, bool& cancel);
@@ -32,6 +26,12 @@ private slots:
 
 private:
     Ui::ParametersDialog *ui;
+    int& _xSize;
+    int& _ySize;
+    int& _fishNumber;
+    int& _plantsNumber;
+    bool& _dry;
+    bool& _cancel;
 };
 
 #endif // PARAMETERSDIALOG_H

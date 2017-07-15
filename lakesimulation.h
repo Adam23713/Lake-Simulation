@@ -10,6 +10,9 @@
 #include "fishes.h"
 #include "deadzone.h"
 
+
+//Ez az osztály irányítja a szimuláció menetét, valamint ő a kapcsolat a szimuláció és a megjelenítő osztály között.
+
 class LakeSimulation : public QThread
 {
 
@@ -22,11 +25,13 @@ private:
     bool _pause = false;
     int _speed = 1000;
 
+    //A tó széleit jelöli, valamint a sewgítségükkel optimalizálni lehet a megjelenítést
     int _deadZoneNumber;
     int _xTopBorder;
     int _yRightBorder;
     int _xBottomBorder;
     int _yLeftBorder;
+    //--------------------------
 
     unsigned int _xSize;
     unsigned int _ySize;
@@ -51,6 +56,7 @@ public:
     explicit LakeSimulation(QObject *parent, unsigned int x, unsigned int y, std::vector<std::vector<WaterObject *> > *map);
     void run();
 
+//Jelek a MainWindow (a megjelenítő osztály) számára
 signals:
     void SimulationFinish();
     void changeMap();

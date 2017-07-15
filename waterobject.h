@@ -1,17 +1,19 @@
 #ifndef WATEROBJECT_H
 #define WATEROBJECT_H
 
+//Ebből az osztályból származtatok minden vizi objektumot : Fish, Plant és a DeadZone ami a kiszáradt mezőt jelöli
+
 #include <string>
 #include <vector>
 #include "point2d.h"
 
+//Segít az azonosításban
 enum class WaterObjectType { FISH, PLANT, DEADZONE };
 
 class WaterObject
 {
 
 private:
-    //bool _live = true;
     WaterObjectType _type;
     Point2D _position;
 

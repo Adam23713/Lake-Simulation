@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
+QT       += sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -33,7 +34,9 @@ SOURCES += \
     lakesimulation.cpp \
     point2d.cpp \
     parametersdialog.cpp \
-    deadzone.cpp
+    deadzone.cpp \
+    databaseinterface.cpp
+
 
 HEADERS += \
         mainwindow.h \
@@ -44,7 +47,8 @@ HEADERS += \
     lakesimulation.h \
     point2d.h \
     parametersdialog.h \
-    deadzone.h
+    deadzone.h \
+    databaseinterface.h
 
 FORMS += \
         mainwindow.ui \
